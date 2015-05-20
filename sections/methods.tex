@@ -1,10 +1,9 @@
 \section{METHODS}
-\subsection{Minimization of change in activation} % (fold)
-\label{sub:minimization_of_change_in_activation}
 [maytodo explain]
 % subsection minimization_of_change_in_activation (end)
-\subsection{Minimization of total activation} % (fold)
-We are given $k$ discrete time steps and its corresponding constraints
+\subsection{Minimization of total activation}
+\label{sub:minimization_of_total_activation} % (fold)
+We are given $k$ discrete time steps and its corresponding output constraints and activation constrains
 \begin{align*}
 A^1 x^1 &= b^1 \\
 A^2 x^2 &= b^2 \\
@@ -21,13 +20,51 @@ Finding a solution where we minimize total activation is hence given by
 \mbox{minimize} & \sum_{j=1}^k \sum_{i=1}^n x_i^j \\ 
 \mbox{subject to} & A^j x^j &=& b^j \hspace{5mm} \forall j \in \{1,\dots, k\} \\
   & x_i^{j+1} - x_i^{j} &\leq& \delta_i^j  \hspace{5mm} \forall j \in \{1,\dots, k-1\}, i \in \{1,\dots,n\} \\
-  & x_i^{j} - x_i^{j+1} &\leq& \delta_i^j  \hspace{5mm} \forall j \in \{1,\dots, k-1\}, i \in \{1,\dots,n\} \\
+  &  -(x_i^{j+1} - x_i^{j}) &\leq& \delta_i^j  \hspace{5mm} \forall j \in \{1,\dots, k-1\}, i \in \{1,\dots,n\} \\
   & x^j &\in& [0,1]^n \hspace{5mm} \forall j \in \{1,\dots, k\}.
 \end{array}
 \end{equation}
 
 This is a linear program in $kn$ variables.
 
-%\label{sub:minimization_of_total_activation}
+
 %[maytodo explain]
 % subsection minimization_of_total_activation (end)
+
+\subsection{Minimization of change in activation} % (fold)
+\label{sub:minimization_of_change_in_activation}
+The activation change of muscle $i$ between time step $j$ and $j+1$ is given by
+\[|x_i^{j+1} - x_i^{j}|.\]
+We are now interested in the solution of the above system, where the sum of the change of activations is minimized. I.e.\ we minimize $\sum_{j=1}^{k-1}\sum_{i=1}^n |x_i^{j+1} - x_i^{j}|$, under the output constraints, activation constraints and spatio-temproal constraints. The linear program therefore looks as follows:
+
+\begin{equation}
+\begin{array}{lrcl}
+\mbox{minimize} & \sum_{j=1}^{k-1} \sum_{i=1}^n |x_i^{j+1} - x_i^{j}| \\ 
+\mbox{subject to} & A^j x^j &=& b^j \hspace{5mm} \forall j \in \{1,\dots, k\} \\
+  & x_i^{j+1} - x_i^{j} &\leq& \delta_i^j  \hspace{5mm} \forall j \in \{1,\dots, k-1\}, i \in \{1,\dots,n\} \\
+  &  -(x_i^{j+1} - x_i^{j}) &\leq& \delta_i^j  \hspace{5mm} \forall j \in \{1,\dots, k-1\}, i \in \{1,\dots,n\} \\
+  & x^j &\in& [0,1]^n \hspace{5mm} \forall j \in \{1,\dots, k\}.
+\end{array}
+\end{equation}
+
+This is technically not a linear program since the objective function consists of absolute values of linear terms. By a standard trick this problem can be captured in a linear program. Instead of minimizing $\sum_{j=1}^{k-1} \sum_{i=1}^n |x_i^{j+1} - x_i^{j}|$ we minimize $\sum_{j=1}^{k-1} \sum_{i=1}^n e_i^j$ and add constraints 
+\begin{align*}
+e_i^j &\geq x_i^{j+1} - x_i^{j} \\
+e_i^j &\geq - (x_i^{j+1} - x_i^{j}).
+\end{align*}
+
+For each term $|x_i^{j+1} - x_i^{j}|$, we add an auxiliary variable $e_i^j$. The constraints guarantee that 
+\[e_i^j \geq \max\{x_i^{j+1} - x_i^{j}, - (x_i^{j+1} - x_i^{j})\} = |x_i^{j+1} - x_i^{j}|.\]
+For an optimal solution each of these inequalities has to be satisfied with equality, otherwise we could decrease the corresponding $e_i^j$. The linear program on $kn + (k-1)n$ variables that we are interested in solving is hence given by
+
+\begin{equation}
+\begin{array}{lrcl}
+\mbox{minimize} & \sum_{j=1}^{k-1} \sum_{i=1}^n e_i^j \\ 
+\mbox{subject to} & A^j x^j &=& b^j \hspace{5mm} \forall j \in \{1,\dots, k\} \\
+  & x_i^{j+1} - x_i^{j} &\leq& \delta_i^j  \hspace{5mm} \forall j \in \{1,\dots, k-1\}, i \in \{1,\dots,n\} \\
+  &  -(x_i^{j+1} - x_i^{j}) &\leq& \delta_i^j  \hspace{5mm} \forall j \in \{1,\dots, k-1\}, i \in \{1,\dots,n\} \\
+  & x^j &\in& [0,1]^n \hspace{5mm} \forall j \in \{1,\dots, k\} \\
+  & e_i^j &\geq& x_i^{j+1} - x_i^{j} \hspace{5mm} \forall j \in \{1,\dots, k-1\}, i \in \{1,\dots,n\}\\
+  & e_i^j &\geq& -(x_i^{j+1} - x_i^{j}) \hspace{5mm} \forall j \in \{1,\dots, k-1\}, i \in \{1,\dots,n\}.
+\end{array}
+\end{equation}
