@@ -68,3 +68,5 @@ For an optimal solution each of these inequalities has to be satisfied with equa
   & e_i^j &\geq& -(x_i^{j+1} - x_i^{j}) \hspace{5mm} \forall j \in \{1,\dots, k-1\}, i \in \{1,\dots,n\}.
 \end{array}
 \end{equation}
+
+For muscle $i$ at moment $j$, $\delta_i^j$ is equal to the amount of change in normalized activation ($a \in [0,1]$) possible up to the \textbf{next} time point; we chose to define \delta as future capability of change. Because of this, there will be $k-1$ total values of delta used; \delta at the last timepoint will not be used in our computations.
